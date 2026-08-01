@@ -196,8 +196,8 @@ aplicación desplegada.
 
 ## Autores
 
-Trabajo grupal para la materia _(completar: nombre de la materia y cátedra)_.
+Trabajo grupal para la materia: Taller de Investigación con Modelización Matemática y Datos
 
-- _(completar: integrante 1)_
-- _(completar: integrante 2)_
-- _(completar: integrante 3)_
+- Maria Pilar Raiola
+- Maria Delfina Ansaldo
+- Berenice Bus Saldaña
