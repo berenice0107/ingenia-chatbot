@@ -1,0 +1,19 @@
+{
+  "inscri": "Las inscripciones se hacen desde el SIU Guaraní:\n1. Ingresá a {SIU} (con tu usuario)\n2. En el menú superior elegí 'Inscripción a Materias' o 'Inscripción a Exámenes'\n3. Recordá hacerlo dentro del período habilitado (preguntame '¿cuándo es la inscripción?' y te digo las fechas)",
+
+  "horarios": "Los horarios están publicados en la página oficial de la facultad.",
+
+  "correlativ": "Las correlatividades se consultan desde el SIU Guaraní:\n1. Ingresá a {SIU} (con tu usuario)\n2. En el menú, andá a Reportes → Plan de estudios\n3. Ahí vas a ver todas las materias por cuatrimestre con sus correlativas",
+
+  "notas": "Para ver tus notas seguí estos pasos:\n1. Ingresá al SIU Guaraní: {SIU} (con tu usuario)\n2. En el menú, andá a Reportes → Actuación provisoria (notas del período en curso)\n3. Para las notas definitivas de toda la carrera: Reportes → Historia académica",
+
+  "becas": "La información sobre becas se encuentra en Bienestar Estudiantil:\n{BECAS}\nTambién podés ver las convocatorias abiertas desde el SIU Guaraní:\nTrámites → Convocatorias a Becas",
+
+  "campus": "El campus virtual utiliza usuario y contraseña institucional.",
+
+  "biblioteca": "La biblioteca funciona de lunes a viernes de 8 a 20 hs.",
+
+  "certificado de alumno": "El certificado de alumno regular se descarga desde el SIU Guaraní:\n1. Ingresá a {SIU} (con tu usuario)\n2. En el menú, andá a Trámites → Solicitar Constancias y Certificados\n3. (En Trámites también podés descargar el Analítico y Diploma Digital)",
+
+  "alumno regular": "El certificado de alumno regular se descarga desde el SIU Guaraní:\n1. Ingresá a {SIU} (con tu usuario)\n2. En el menú, andá a Trámites → Solicitar Constancias y Certificados\n3. (En Trámites también podés descargar el Analítico y Diploma Digital)"
+}
