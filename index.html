@@ -733,6 +733,58 @@ const INDICE = (function construirIndice() {
   }
 })();
 
+/* --- Corrección de errores de tipeo ---
+   El TF-IDF compara palabras completas, así que un typo ("parciles") no
+   se asocia a su término ("parcial"). Antes de puntuar, cada palabra
+   desconocida se reemplaza por el término más cercano del vocabulario,
+   si la distancia de edición es lo bastante chica.
+
+   Distancia de Levenshtein: cantidad mínima de inserciones, borrados o
+   sustituciones de caracteres para transformar una palabra en otra.
+   Se calcula con programación dinámica sobre dos filas, y se corta apenas
+   la fila mínima supera el máximo tolerado. */
+function distanciaEdicion(a, b, max) {
+  const n = a.length, m = b.length;
+  if (Math.abs(n - m) > max) return max + 1;
+  let previa = [];
+  for (let j = 0; j <= m; j++) previa[j] = j;
+  for (let i = 1; i <= n; i++) {
+    const actual = [i];
+    let minimo = i;
+    for (let j = 1; j <= m; j++) {
+      const costo = a[i - 1] === b[j - 1] ? 0 : 1;
+      actual[j] = Math.min(actual[j - 1] + 1, previa[j] + 1, previa[j - 1] + costo);
+      if (actual[j] < minimo) minimo = actual[j];
+    }
+    if (minimo > max) return max + 1;
+    previa = actual;
+  }
+  return previa[m];
+}
+
+const VOCABULARIO = Object.keys(INDICE.idf);
+
+/* Tolerancia conservadora: se admite un solo carácter de diferencia, y nunca
+   en palabras muy cortas. Permitir dos caracteres hacía que palabras de otros
+   temas se "corrigieran" a términos del vocabulario y generaba falsos positivos. */
+function toleranciaTypo(palabra) {
+  return palabra.length <= 3 ? 0 : 1;
+}
+
+function corregirTokens(tokens) {
+  return tokens.map(t => {
+    if (t in INDICE.idf) return t;
+    const max = toleranciaTypo(t);
+    if (max === 0) return t;
+    let mejor = t, mejorDistancia = max + 1;
+    for (const termino of VOCABULARIO) {
+      const d = distanciaEdicion(t, termino, max);
+      if (d < mejorDistancia) { mejorDistancia = d; mejor = termino; }
+    }
+    return mejor;
+  });
+}
+
 function vectorizarConsulta(tokens) {
   const tf = {};
   for (const t of tokens) tf[t] = (tf[t] || 0) + 1;
@@ -756,7 +808,7 @@ function coseno(a, b) {
 
 // Devuelve los intents ordenados por similitud con la consulta.
 function rankear(texto) {
-  const tokens = tokenizar(texto);
+  const tokens = corregirTokens(tokenizar(texto));
   if (tokens.length === 0) return [];
   const vec = vectorizarConsulta(tokens);
 
@@ -779,7 +831,7 @@ function rankear(texto) {
 const COBERTURA_MINIMA = 0.6;
 
 function cobertura(texto) {
-  const tokens = tokenizar(texto);
+  const tokens = corregirTokens(tokenizar(texto));
   if (tokens.length === 0) return 0;
   const conocidos = tokens.filter(t => t in INDICE.idf).length;
   return conocidos / tokens.length;
@@ -908,6 +960,13 @@ function responder(textoUsuario) {
         REDIRECCION_INSCRIPCION[exacto.intent]) {
       exacto.intent = REDIRECCION_INSCRIPCION[exacto.intent];
     }
+  }
+  // La coincidencia exacta solo corta la cascada si coincide con el tipo de
+  // pregunta detectado. Si no, se guarda como respaldo y se consulta el ranking:
+  // "fechas de inscripsion a materias" contiene la clave "inscri" (procedimiento)
+  // pero pregunta por una fecha.
+  const exactoFuerte = exacto && (!preferido || exacto.tipo === preferido);
+  if (exactoFuerte) {
     return { texto: armar(exacto), nivel: 1, intent: exacto.tipo + "|" + exacto.intent };
   }
 
@@ -926,6 +985,11 @@ function responder(textoUsuario) {
     const mejor = ranking[0];
     return { texto: armar(mejor), nivel: 2, intent: mejor.tipo + "|" + mejor.intent,
              score: mejor.score };
+  }
+
+  // Respaldo: coincidencia exacta de tipo distinto al detectado
+  if (exacto) {
+    return { texto: armar(exacto), nivel: 1, intent: exacto.tipo + "|" + exacto.intent };
   }
 
   // Nivel 3 — sugerencias
@@ -988,7 +1052,12 @@ const CASOS_PRUEBA = [
   ["¿qué horario tiene la biblioteca?", "respuesta|biblioteca"],
   ["necesito el certificado de alumno regular", "respuesta|certificado"],
   ["¿donde descargo el analítico?", "respuesta|certificado"],
-  ["quiero anotarme en materias", "calendario|inscripcion materias"]
+  ["quiero anotarme en materias", "calendario|inscripcion materias"],
+  // errores de tipeo
+  ["cuando son los parciles", "calendario|parciales"],
+  ["fechas de inscripsion a materias", "calendario|inscripcion materias"],
+  ["donde veo mis nots", "respuesta|notas"],
+  ["cuando son las integradorass", "calendario|finales"]
 ];
 
 function evaluar(casos) {
