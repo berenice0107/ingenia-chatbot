@@ -60,6 +60,15 @@ Cada texto (consultas y ejemplos) pasa por el mismo pipeline:
    derivados (`inscripciones → inscripcion`), y una tabla de raíces del dominio
    unifica las formas verbales frecuentes: "me anoto", "anotarme" y "anotarse"
    se reducen todas a `anotar`.
+5. **Corrección de errores de tipeo** — toda palabra que no esté en el
+   vocabulario se compara contra los términos conocidos mediante la **distancia
+   de Levenshtein** (cantidad mínima de inserciones, borrados o sustituciones de
+   caracteres para transformar una palabra en otra), calculada por programación
+   dinámica con corte temprano. Si existe un término a distancia 1, la palabra se
+   reemplaza por él: así "parciles" se resuelve como "parcial" e "inscripsion"
+   como "inscripción". La tolerancia se mantiene en un solo carácter a propósito:
+   con dos, palabras de otros temas se "corregían" a términos del vocabulario y
+   producían falsos positivos.
 
 ### Ponderación TF-IDF
 
@@ -130,7 +139,7 @@ estaba escrita a mano y podía quedar desincronizada del motor.
 
 ## Evaluación
 
-El proyecto incluye un set de 38 casos de prueba con su tema esperado. Para
+El proyecto incluye un set de 42 casos de prueba con su tema esperado. Para
 correrlo, abrir la consola del navegador (F12) y escribir:
 
 ```javascript
@@ -147,12 +156,12 @@ IngenIA.rankear("hasta cuando me anoto a materias")
 ### Resultados
 
 Comparación entre el motor anterior (coincidencia de substrings) y el actual,
-sobre un conjunto de 58 consultas:
+sobre un conjunto de 62 consultas:
 
 | | Motor anterior | Motor actual |
 |---|---|---|
-| Respuestas correctas | 34/58 (58,6 %) | 58/58 (100 %) |
-| Consultas sin respuesta | 17 | 0 |
+| Respuestas correctas | 35/62 (56,5 %) | 62/62 (100 %) |
+| Consultas sin respuesta | 19 | 0 |
 
 > **Nota metodológica:** los umbrales y el corpus de ejemplos fueron ajustados
 > observando estos mismos casos, por lo que el 100 % está sobreestimado. Una
@@ -163,8 +172,11 @@ sobre un conjunto de 58 consultas:
 
 ## Limitaciones conocidas
 
-- **Errores de tipeo.** La comparación es entre palabras completas: "parciles" no
-  se asocia a "parciales". Se resolvería incorporando distancia de Levenshtein.
+- **Corrección de tipeo acotada.** Se corrigen errores de un solo carácter. Un
+  error mayor ("intgeradora") no se recupera, y una palabra ajena al dominio que
+  quede a un carácter de un término conocido puede desviar la consulta: "flan" se
+  corrige a "plan" y la lleva hacia correlatividades. En esos casos el motor no
+  afirma, sugiere.
 - **Sin contexto conversacional.** Cada consulta se resuelve de forma
   independiente; no se pueden hacer repreguntas ("¿y el del segundo cuatrimestre?").
 - **Sin filtrado dentro de un tema.** Ante "finales de diciembre" se devuelven
@@ -196,8 +208,8 @@ aplicación desplegada.
 
 ## Autores
 
-Trabajo grupal para la materia: Taller de Investigación con Modelización Matemática y Datos
+Trabajo grupal para la materia _(completar: nombre de la materia y cátedra)_.
 
-- Maria Pilar Raiola
-- Maria Delfina Ansaldo
-- Berenice Bus Saldaña
+- _(completar: integrante 1)_
+- _(completar: integrante 2)_
+- _(completar: integrante 3)_
